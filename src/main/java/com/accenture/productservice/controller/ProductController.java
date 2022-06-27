@@ -17,10 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping(value = "/api/v1/products")
 public class ProductController {
+
+    private static final Logger LOGGER = Logger.getLogger(ProductController.class.getName());
 
     private ProductService productService;
 
@@ -30,7 +34,8 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createProduct(@RequestBody @Valid ProductDto productDto) {
+    public ResponseEntity<String> createProduct(@Valid @RequestBody ProductDto productDto) {
+        LOGGER.log(Level.FINE, "Trying to add new product, with code: {0}",  productDto.getCode());
         return new ResponseEntity<>(productService.create(productDto), HttpStatus.CREATED);
     }
 
@@ -46,7 +51,7 @@ public class ProductController {
     }
 
     @PutMapping
-    public ResponseEntity<String>updateProduct(@RequestBody @Valid ProductDto productDto) {
+    public ResponseEntity<String>updateProduct(@Valid @RequestBody ProductDto productDto) {
         return new ResponseEntity<>(productService.update(productDto), HttpStatus.OK);
     }
 

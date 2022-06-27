@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2022-06-27T11:08:05.991603100Z</date>
+  <millis>1656328085991</millis>
+  <nanos>603100</nanos>
+  <sequence>3</sequence>
+  <logger>org.apache.coyote.http11.Http11NioProtocol</logger>
+  <level>INFO</level>
+  <class>org.apache.coyote.AbstractProtocol</class>
+  <method>start</method>
+  <thread>1</thread>
+  <message>Starting ProtocolHandler ["http-nio-8080"]</message>
+</record>
+<record>
+  <date>2022-06-27T11:09:10.687954300Z</date>
+  <millis>1656328150687</millis>
+  <nanos>954300</nanos>
+  <sequence>4</sequence>
+  <logger>org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/]</logger>
+  <level>INFO</level>
+  <class>org.apache.catalina.core.ApplicationContext</class>
+  <method>log</method>
+  <thread>35</thread>
+  <message>Initializing Spring DispatcherServlet 'dispatcherServlet'</message>
+</record>
+<record>
+  <date>2022-06-27T11:09:10.905128Z</date>
+  <millis>1656328150905</millis>
+  <nanos>128000</nanos>
+  <sequence>5</sequence>
+  <logger>com.accenture.productservice.service.ProductService</logger>
+  <level>WARNING</level>
+  <class>ProductService</class>
+  <method>create</method>
+  <thread>35</thread>
+  <message>Trying to add a product with an existing code: 011, product details: ProductDto(code=011, name=Test2, category=BREAD, description=Baked Bread 200g, unitsPerSet=1, price=1.00)</message>
+</record>

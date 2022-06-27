@@ -15,13 +15,17 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class ProductService {
 
-    private final ProductRepository productRepository;
+    private static final Logger LOGGER = Logger.getLogger(ProductService.class.getName());
 
-    private final ProductMapper mapper;
+    private ProductRepository productRepository;
+
+    private ProductMapper mapper;
 
     @Autowired
     public ProductService(ProductRepository productRepository, ProductMapper mapper) {
@@ -33,15 +37,16 @@ public class ProductService {
         if (!productRepository.existsByCode(productDto.getCode())) {
             Product newProduct = mapper.toEntity(productDto);
             newProduct.setCreatedAt(LocalDateTime.now());
-            productRepository.save(newProduct);
+            Product saved = productRepository.save(newProduct);
+            LOGGER.logp(Level.INFO, "ProductService", "create", "Added. Product details: " + saved);
             return "Product with code: " + newProduct.getCode() + " saved successfully";
         } else {
+            LOGGER.logp(Level.WARNING,"ProductService", "create", String.format("Trying to add a product with an existing code: %s, product details: %s", productDto.getCode(), productDto));
             throw new ExistingProductException();
         }
     }
 
     public List<ProductDto> findAll(SearchCriteria searchCriteria) {
-
         if (searchCriteria.getPageSize() == null) {
             searchCriteria.setPageSize(20);
         }
@@ -58,21 +63,22 @@ public class ProductService {
 
     public ProductDto findOne(String code) {
         return mapper.toDto(productRepository.findProductByCode(code)
-                .orElseThrow(ProductNotFoundException::new));
+                .orElseThrow(()-> new ProductNotFoundException(Product.class, "code", code)));
     }
 
     public String update(ProductDto productDto) {
         Product dbProduct = productRepository.findProductByCode(productDto.getCode())
-                .orElseThrow(ProductNotFoundException::new);
+                .orElseThrow(()-> new ProductNotFoundException(Product.class, "code", productDto.getCode()));
         mapper.update(productDto, dbProduct);
         dbProduct.setLastModifiedAt(LocalDateTime.now());
+        LOGGER.log(Level.FINE, "Product updated.");
         productRepository.save(dbProduct);
         return "Product with code " + dbProduct.getCode() + " updated successfully.";
     }
 
     public void delete(String code) {
         Product toBeDeleted = productRepository.findProductByCode(code)
-                .orElseThrow(ProductNotFoundException::new);
+                .orElseThrow(()-> new ProductNotFoundException(ProductNotFoundException.class, "code", code));
         productRepository.delete(toBeDeleted);
     }
 }

@@ -1,6 +1,8 @@
 package com.accenture.productservice.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +22,23 @@ import java.util.Map;
 import java.util.Set;
 
 @Slf4j
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<Object> handleException(ProductNotFoundException exception, WebRequest request) {
+    public ResponseEntity<Object> handleException(ProductNotFoundException exception) {
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND);
+        apiError.setMessage(exception.getMessage());
+        return buildResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(NoSuchCategoryException.class)
+    public ResponseEntity<Object> handleException(NoSuchCategoryException exception, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Product not found in database.");
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        body.put("message", "No such category.");
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ExistingProductException.class)
@@ -46,10 +56,11 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
                 .stream()
                 .map(fieldError -> fieldError.getDefaultMessage())
                 .toList();
-        ErrorDetails details = new ErrorDetails(HttpStatus.BAD_REQUEST, String.valueOf(ex.getFieldErrors()), errors);
+        String message = "Invalid parameter(s) inserted.";
+
+        ErrorDetails details = new ErrorDetails(HttpStatus.BAD_REQUEST, message, errors);
         return handleExceptionInternal(ex, details, headers, details.getStatus(), request);
     }
-
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler({ConstraintViolationException.class})
@@ -66,5 +77,9 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     public ExceptionResponse handleException(Exception exception) {
         log.debug("Exception registered: {}", exception.getCause(), exception);
         return new ExceptionResponse(exception.getClass().getSimpleName(), "Exception occurred inside API.");
+    }
+
+    private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {
+        return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 }

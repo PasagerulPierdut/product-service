@@ -7,6 +7,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
@@ -21,7 +22,7 @@ public class ProductDto {
     @NotEmpty(message = "The product must have a name.")
     private String name;
 
-    @NotEmpty
+    @NotNull
     private ProductCategory category;
 
     private String description;
